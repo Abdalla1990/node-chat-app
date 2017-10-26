@@ -16,6 +16,20 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('disconnected from server');
     });
+
+
+
+    socket.emit(('newMessage'), {
+
+        user: "new User",
+        message: "abdalla wants to be professional"
+
+    });
+    socket.on('createMessage', (data) => {
+        console.log(data);
+    })
+
+
 });
 
 
