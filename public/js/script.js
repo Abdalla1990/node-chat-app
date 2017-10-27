@@ -4,11 +4,6 @@ socket.on('connect', function() {
     console.log('connected');
 
 
-    socket.emit('createMessage', {
-        user: "client",
-        message: "this is a message"
-
-    })
 });
 
 socket.on('disconnect', function() {

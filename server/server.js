@@ -19,14 +19,14 @@ io.on('connection', (socket) => {
 
 
 
-    socket.emit(('newMessage'), {
-
-        user: "new User",
-        message: "abdalla wants to be professional"
-
-    });
     socket.on('createMessage', (data) => {
         console.log(data);
+
+        io.emit('newMessage', {
+            user: data.user,
+            message: data.message,
+            createdAt: new Date().getDate()
+        });
     })
 
 
