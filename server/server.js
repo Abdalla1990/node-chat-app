@@ -7,6 +7,7 @@ const socketIo = require('socket.io');
 const http = require('http');
 var server = http.createServer(app);
 const io = socketIo(server);
+const { generateMessage } = require('./utils/message');
 app.use(express.static(publicPath));
 
 
@@ -15,23 +16,16 @@ io.on('connection', (socket) => {
 
 
 
-    socket.emit('newMessage', {
-        from: 'admin',
-        message: 'welcome to the chat app',
-        createdAt: new Date().getTime()
-    });
+    socket.emit('newMessage', generateMessage('admin', 'welcome to the caht app'));
 
-    socket.broadcast.emit('newMessage', {
-        from: 'admin',
-        message: 'new User Joined ',
-        createdAt: new Date().getTime()
-    });
+    socket.broadcast.emit('newMessage', generateMessage('admin', 'new user joined'));
 
 
 
 
     socket.on('disconnect', () => {
         console.log('A User left the chat');
+        io.emit('newMessage', generateMessage('admin', 'a user has left the chat '));
     });
 
 
@@ -39,11 +33,7 @@ io.on('connection', (socket) => {
     socket.on('createMessage', (data) => {
         console.log(data);
 
-        io.emit('newMessage', {
-            user: data.user,
-            message: data.message,
-            createdAt: new Date().getDate()
-        });
+        io.emit('newMessage', generateMessage(data.from, data.text));
     })
 
 
