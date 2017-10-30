@@ -30,10 +30,15 @@ io.on('connection', (socket) => {
 
 
 
-    socket.on('createMessage', (data) => {
+    socket.on('createMessage', (data, callback) => {
         console.log(data);
 
-        io.emit('newMessage', generateMessage(data.from, data.text));
+        try {
+            if (data.text) { io.emit('newMessage', generateMessage(data.from, data.text)); } else { throw new Error('text is not found') }
+            callback('Worked!');
+        } catch (e) { callback(`error ${e.message}`) }
+
+
     })
 
 
