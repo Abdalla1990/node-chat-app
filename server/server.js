@@ -7,7 +7,7 @@ const socketIo = require('socket.io');
 const http = require('http');
 var server = http.createServer(app);
 const io = socketIo(server);
-const { generateMessage } = require('./utils/message');
+const Message = require('./utils/message');
 app.use(express.static(publicPath));
 
 
@@ -16,16 +16,16 @@ io.on('connection', (socket) => {
 
 
 
-    socket.emit('newMessage', generateMessage('admin', 'welcome to the caht app'));
+    socket.emit('newMessage', Message.generateMessage('admin', 'welcome to the chat app'));
 
-    socket.broadcast.emit('newMessage', generateMessage('admin', 'new user joined'));
+    socket.broadcast.emit('newMessage', Message.generateMessage('admin', 'new user joined'));
 
 
 
 
     socket.on('disconnect', () => {
         console.log('A User left the chat');
-        io.emit('newMessage', generateMessage('admin', 'a user has left the chat '));
+        io.emit('newMessage', Message.generateMessage('admin', 'a user has left the chat '));
     });
 
 
@@ -34,7 +34,19 @@ io.on('connection', (socket) => {
         console.log(data);
 
         try {
-            if (data.text) { io.emit('newMessage', generateMessage(data.from, data.text)); } else { throw new Error('text is not found') }
+            if (data.text) { io.emit('newMessage', Message.generateMessage(data.from, data.text)); } else { throw new Error('text is not found') }
+            callback('Worked!');
+        } catch (e) { callback(`error ${e.message}`) }
+
+
+    });
+    socket.on('createLocation', (data, callback) => {
+        console.log(data);
+
+        try {
+            if (data.location) {
+                io.emit('newLocationMessage', Message.generateLocationMessage(data.from, data.location.latitude, data.location.longitude));
+            } else { throw new Error('location is not found') }
             callback('Worked!');
         } catch (e) { callback(`error ${e.message}`) }
 
