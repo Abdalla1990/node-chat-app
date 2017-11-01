@@ -8,25 +8,48 @@ const http = require('http');
 var server = http.createServer(app);
 const io = socketIo(server);
 const Message = require('./utils/message');
+const { isRealString } = require('./utils/validation');
+const { Users } = require('./utils/users');
 app.use(express.static(publicPath));
-
+var users = new Users();
 
 io.on('connection', (socket) => {
     console.log('new user connected ');
 
+    socket.on('join', (params, callback) => {
 
+        if (!isRealString(params.name) || !isRealString(params.room)) {
+            return callback('both fields are required.')
+        }
 
-    socket.emit('newMessage', Message.generateMessage('admin', 'welcome to the chat app'));
+        socket.join(params.room);
+        users.removeUser(socket.id);
+        users.addUser(socket.id, params.name, params.room);
 
-    socket.broadcast.emit('newMessage', Message.generateMessage('admin', 'new user joined'));
+        io.to(params.room).emit('updateUsersList', users.getUserList(params.room));
+
+        socket.emit('newMessage', Message.generateMessage('Admin', `welcome to the chat app ${params.name}`));
+        console.log(params.room);
+        socket.broadcast.to(params.room).emit('newMessage', Message.generateMessage('Admin', `${params.name} has joined`));
+        callback();
+
+    });
 
 
 
 
     socket.on('disconnect', () => {
+
+        var user = users.removeUser(socket.id);
         console.log('A User left the chat');
-        io.emit('newMessage', Message.generateMessage('admin', 'a user has left the chat '));
+        if (user) {
+            io.to(user.room).emit('updateUserList', users);
+            io.to(user.room).emit('newMessage', Message.generateMessage('Admin', `${user.name} has left the chat`));
+
+        }
+
     });
+
 
 
 
