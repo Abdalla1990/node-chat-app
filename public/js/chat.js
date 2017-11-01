@@ -96,7 +96,7 @@ submitButton.on('click', function(e) {
 
     var message = jQuery('[name=message]');
     //console.log('I am working', message);
-    socket.emit('createMessage', { from: 'User', text: message.val() }, function(serverM) {
+    socket.emit('createMessage', { text: message.val() }, function(serverM) {
         console.log(`server says : ${serverM}`);
         message.val('');
     });

@@ -54,21 +54,21 @@ io.on('connection', (socket) => {
 
 
     socket.on('createMessage', (data, callback) => {
-        console.log(data);
+        var user = users.getUser(socket.id);
 
         try {
-            if (data.text) { io.emit('newMessage', Message.generateMessage(data.from, data.text)); } else { throw new Error('text is not found') }
+            if (user && isRealString(data.text)) { io.to(user.room).emit('newMessage', Message.generateMessage(user.name, data.text)); } else { throw new Error('text is not found') }
             callback('Worked!');
         } catch (e) { callback(`error ${e.message}`) }
 
 
     });
     socket.on('createLocation', (data, callback) => {
-        console.log(data);
+        var user = users.getUser(socket.id);
 
         try {
             if (data.location) {
-                io.emit('newLocationMessage', Message.generateLocationMessage(data.from, data.location.latitude, data.location.longitude));
+                io.to(user.room).emit('newLocationMessage', Message.generateLocationMessage(user.name, data.location.latitude, data.location.longitude));
             } else { throw new Error('location is not found') }
             callback('Worked!');
         } catch (e) { callback(`error ${e.message}`) }
